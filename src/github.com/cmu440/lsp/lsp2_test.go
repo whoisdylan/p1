@@ -336,6 +336,7 @@ func (ts *windowTestSystem) runMaxCapacityTest() {
 	}
 
 	// (1) Server to client.
+	//ts.t.Logf("Server drop percent 100\n")
 	ts.setServerWriteDropPercent(100) // Don't let server send acks.
 
 	// Tell server to begin listening for messages from clients.
@@ -358,6 +359,7 @@ func (ts *windowTestSystem) runMaxCapacityTest() {
 
 	// Let the server send acks again. Client will resume sending the
 	// rest of its messages at the next epoch event.
+	//ts.t.Logf("Server drop percent 0\n")
 	ts.setServerWriteDropPercent(0)
 
 	ts.waitForServer() // Wait for the server to read the rest of the client's messages.
@@ -474,6 +476,7 @@ func (ts *windowTestSystem) runScatteredMsgsTest() {
 }
 
 func TestWindow1(t *testing.T) {
+	//originally epochLimit=3 and maxEpochs = 5
 	newWindowTestSystem(t, doMaxCapacity, 1, 10, &Params{3, 500, 5}).
 		setDescription("TestWindow1: 1 client, max capacity").
 		setMaxEpochs(5).
