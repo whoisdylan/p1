@@ -1,13 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"os"
 	"github.com/cmu440/bitcoin"
 	"github.com/cmu440/lsp"
-	"encoding/json"
+	"os"
 	"strconv"
-//	"hash"
+	//	"hash"
 )
 
 //os.Args = nt host:port message maxNonce
@@ -18,24 +18,28 @@ func main() {
 		return
 	}
 	params := lsp.NewParams()
-	client,_:= lsp.NewClient(os.Args[1], params)
-	maxNonce,_ := strconv.Atoi(os.Args[3])
+	client, _ := lsp.NewClient(os.Args[1], params)
+	maxNonce, _ := strconv.Atoi(os.Args[3])
 	request := bitcoin.NewRequest(os.Args[2], 0, uint64(maxNonce))
-	marshMess,_ := json.Marshal(request)
-//	fmt.Println("addr=",os.Args[1])
-//	fmt.Println("msg=",os.Args[2])
-//	fmt.Println("maxNonce=",uint64(maxNonce))
-	client.Write(marshMess)
-	marshResult,readError := client.Read()
+	marshMess, _ := json.Marshal(request)
+	//	fmt.Println("addr=",os.Args[1])
+	//	fmt.Println("msg=",os.Args[2])
+	//	fmt.Println("maxNonce=",uint64(maxNonce))
+	writeError := client.Write(marshMess)
+	if writeError != nil {
+		//		fmt.Println(writeError)
+		return
+	}
+	marshResult, readError := client.Read()
 	if readError != nil {
 		printDisconnected()
 	} else {
 		var unmarshResult bitcoin.Message
-		json.Unmarshal(marshResult,&unmarshResult)
-		hashResult := strconv.FormatUint(marshResult.Hash, 10)
-		nonceResult := strconv.FormatUint(marshResult.Nonce, 10)
-//		hashResult := fmt.Sprintf("%d",unmarshResult.Hash)
-//		nonceResult := fmt.Sprintf("%d",unmarshResult.Nonce)
+		json.Unmarshal(marshResult, &unmarshResult)
+		hashResult := strconv.FormatUint(unmarshResult.Hash, 10)
+		nonceResult := strconv.FormatUint(unmarshResult.Nonce, 10)
+		//		hashResult := fmt.Sprintf("%d",unmarshResult.Hash)
+		//		nonceResult := fmt.Sprintf("%d",unmarshResult.Nonce)
 		printResult(hashResult, nonceResult)
 	}
 	client.Close()
